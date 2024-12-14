@@ -1,89 +1,3 @@
---[[
-
-=====================================================================
-==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
-========                                    .-----.          ========
-========         .----------------------.   | === |          ========
-========         |.-""""""""""""""""""-.|   |-----|          ========
-========         ||                    ||   | === |          ========
-========         ||   KICKSTART.NVIM   ||   |-----|          ========
-========         ||                    ||   | === |          ========
-========         ||                    ||   |-----|          ========
-========         ||:Tutor              ||   |:::::|          ========
-========         |'-..................-'|   |____o|          ========
-========         `"")----------------(""`   ___________      ========
-========        /::::::::::|  |::::::::::\  \ no mouse \     ========
-========       /:::========|  |==hjkl==:::\  \ required \    ========
-========      '""""""""""""'  '""""""""""""'  '""""""""""'   ========
-========                                                     ========
-=====================================================================
-=====================================================================
-
-What is Kickstart?
-
-  Kickstart.nvim is *not* a distribution.
-
-  Kickstart.nvim is a starting point for your own configuration.
-    The goal is that you can read every line of code, top-to-bottom, understand
-    what your configuration is doing, and modify it to suit your needs.
-
-    Once you've done that, you can start exploring, configuring and tinkering to
-    make Neovim your own! That might mean leaving Kickstart just the way it is for a while
-    or immediately breaking it into modular pieces. It's up to you!
-
-    If you don't know anything about Lua, I recommend taking some time to read through
-    a guide. One possible example which will only take 10-15 minutes:
-      - https://learnxinyminutes.com/docs/lua/
-
-    After understanding a bit more about Lua, you can use `:help lua-guide` as a
-    reference for how Neovim integrates Lua.
-    - :help lua-guide
-    - (or HTML version): https://neovim.io/doc/user/lua-guide.html
-
-Kickstart Guide:
-
-  TODO: The very first thing you should do is to run the command `:Tutor` in Neovim.
-
-    If you don't know what this means, type the following:
-      - <escape key>
-      - :
-      - Tutor
-      - <enter key>
-
-    (If you already know the Neovim basics, you can skip this step.)
-
-  Once you've completed that, you can continue working through **AND READING** the rest
-  of the kickstart init.lua.
-
-  Next, run AND READ `:help`.
-    This will open up a help window with some basic information
-    about reading, navigating and searching the builtin help documentation.
-
-    This should be the first place you go to look when you're stuck or confused
-    with something. It's one of my favorite Neovim features.
-
-    MOST IMPORTANTLY, we provide a keymap "<space>sh" to [s]earch the [h]elp documentation,
-    which is very useful when you're not exactly sure of what you're looking for.
-
-  I have left several `:help X` comments throughout the init.lua
-    These are hints about where to find more information about the relevant settings,
-    plugins or Neovim features used in Kickstart.
-
-   NOTE: Look for lines like this
-
-    Throughout the file. These are for you, the reader, to help you understand what is happening.
-    Feel free to delete them once you know what you're doing, but they should serve as a guide
-    for when you are first encountering a few different constructs in your Neovim config.
-
-If you experience any errors while trying to install kickstart, run `:checkhealth` for more info.
-
-I hope you enjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now! :)
---]]
-
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
@@ -92,6 +6,56 @@ vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = false
+
+-- Personal edit, for latex
+-- vimtex configuration
+vim.g.vimtex_view_method = 'zathura'
+vim.g.vimtex_compiler_method = 'latexmk'
+vim.g.vimtex_compiler_latexmk = {
+  continuous = 1,
+  options = { '-f', '-file-line-error', '-synctex=1', '-interaction=nonstopmode' },
+}
+vim.g.vimtex_view_general_viewer = 'okular'
+vim.g.vimtex_view_general_options = '--unique file:@pdf#src:@line@tex'
+vim.g.vimtex_quickfix_ignore_filters = {
+  'Underfull \\hbox',
+  'Overfull \\hbox',
+  'LaTeX Warning: .+ float specifier changed to',
+  'LaTeX hooks Warning',
+  'Package siunitx Warning: Detected the "physics" package:',
+  'Package hyperref Warning: Token not allowed in a PDF string',
+}
+
+-- Enable spell checking
+vim.opt.spell = false
+
+-- Set spell languages
+vim.opt.spelllang = { 'en_us' }
+
+-- Optional: Point to your custom spell files
+vim.opt.spellfile = vim.fn.expand '~/.config/nvim/spell/en.utf-8.add'
+
+-- Optional: Spell checking settings
+vim.opt.spellcapcheck = '' -- Disable capital checking
+vim.opt.spellsuggest = 'best,9' -- Maximum 9 spelling suggestions
+
+-- Toggle spell checking
+vim.keymap.set('n', '<leader>zs', ':set spell!<CR>', { noremap = true, silent = true, desc = 'Toggle spell checking' })
+
+-- Move to next spelling error
+vim.keymap.set('n', '<leader>zn', function()
+  vim.cmd 'normal! ]s'
+end, { noremap = true, silent = true, desc = 'Next spelling error' })
+
+-- Move to previous spelling error
+vim.keymap.set('n', '<leader>zp', function()
+  vim.cmd 'normal! [s'
+end, { noremap = true, silent = true, desc = 'Previous spelling error' })
+
+-- Show spelling suggestions
+vim.keymap.set('n', '<leader>z?', function()
+  vim.cmd 'normal! z='
+end, { noremap = true, silent = true, desc = 'Show spelling suggestions' })
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -176,10 +140,10 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set('n', '<left>', '')
+vim.keymap.set('n', '<right>', '')
+vim.keymap.set('n', '<up>', '')
+vim.keymap.set('n', '<down>', '')
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -190,6 +154,22 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+--Was going to add automatic saving to leader ll, but idk how to convert noremap <localleader>c <Cmd>update<CR><Cmd>VimtexCompileSS<CR> into lua.
+--vim.keymap.set('n', '<leader>ll' )
+vim.keymap.set('n', '<leader>ll', function()
+  vim.cmd 'w'
+  -- Ensure clean compilation
+  vim.cmd 'VimtexClean'
+  -- Compile multiple times to resolve TOC and cross-reference issues
+  for i = 1, 3 do
+    vim.cmd 'VimtexCompile'
+    vim.cmd 'sleep 200m'
+  end
+end, {
+  noremap = true,
+  silent = true,
+  desc = 'Save, clean, and compile with VimTex (multiple passes)',
+})
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -237,7 +217,51 @@ require('lazy').setup({
   --
   -- Use `opts = {}` to force a plugin to be loaded.
   --
-
+  --
+  {
+    'lervag/vimtex',
+    lazy = false, -- we don't want to lazy load VimTeX
+    -- tag = "v2.15", -- uncomment to pin to a specific release
+    init = function()
+      -- VimTeX configuration goes here, e.g.
+      vim.g.vimtex_view_method = 'zathura'
+    end,
+  },
+  -- Autocompletion plugins
+  {
+    'hrsh7th/nvim-cmp',
+    dependencies = {
+      'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-buffer',
+      'micangl/cmp-vimtex',
+    },
+    config = function()
+      local cmp = require 'cmp'
+      cmp.setup {
+        sources = cmp.config.sources {
+          { name = 'nvim_lsp' },
+          { name = 'vimtex' },
+          { name = 'buffer' },
+          { name = 'path' },
+        },
+        mapping = cmp.mapping.preset.insert {
+          ['<C-n>'] = cmp.mapping.select_next_item(),
+          ['<C-p>'] = cmp.mapping.select_prev_item(),
+          ['<C-y>'] = cmp.mapping.confirm { select = true },
+          ['<C-Space>'] = cmp.mapping.complete(),
+        },
+        snippet = {
+          expand = function(args)
+            -- Use LuaSnip for snippet expansion
+            require('luasnip').lsp_expand(args.body)
+          end,
+        },
+        performance = cmp.performanceConfig {
+          max_view_entries = 10, -- Limits the number of visible completion items
+        },
+      }
+    end,
+  },
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`. This is equivalent to the following Lua:
   --    require('gitsigns').setup({ ... })
@@ -321,6 +345,7 @@ require('lazy').setup({
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        { '<leader>z', group = '[Z]pell' },
       },
     },
   },
@@ -450,6 +475,8 @@ require('lazy').setup({
       },
     },
   },
+  -- syntax highlighting for latex
+  { 'lervag/vimtex', lazy = false },
   { 'Bilal2453/luvit-meta', lazy = true },
   {
     -- Main LSP Configuration
@@ -641,6 +668,24 @@ require('lazy').setup({
             },
           },
         },
+        texlab = {
+          settings = {
+            texlab = {
+              build = {
+                executable = 'latexmk',
+                args = { '-pdf', '-interaction=nonstopmode', '-synctex=1', '%f' },
+                onSave = true,
+              },
+              chktex = {
+                onEdit = true,
+                onOpenAndSave = true,
+              },
+              diagnostics = {
+                disabled = {}, -- You can add specific diagnostics to disable if needed
+              },
+            },
+          },
+        },
       }
 
       -- Ensure the servers and tools above are installed
@@ -656,6 +701,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'texlab', -- Used to format latex code
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -752,6 +798,9 @@ require('lazy').setup({
       --  into multiple repos for maintenance purposes.
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
+      -- Add these for LaTeX support
+      'micangl/cmp-vimtex',
+      'hrsh7th/cmp-buffer',
     },
     config = function()
       -- See `:help cmp`
@@ -826,7 +875,9 @@ require('lazy').setup({
             group_index = 0,
           },
           { name = 'nvim_lsp' },
+          { name = 'vimtex' }, --Add VimTex source
           { name = 'luasnip' },
+          { name = 'buffer' }, --Add buffer source
           { name = 'path' },
         },
       }
@@ -897,7 +948,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'cpp', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc', 'latex' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -905,7 +956,7 @@ require('lazy').setup({
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
+        additional_vim_regex_highlighting = { 'ruby', 'latex' }, --latex is a personal choice, might not be right
       },
       indent = { enable = true, disable = { 'ruby' } },
     },
