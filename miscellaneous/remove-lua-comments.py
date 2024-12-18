@@ -2,20 +2,34 @@ import shutil
 import sys
 import os
 
+def is_comment_in_text(input_text, index):
+    sq = 0
+    dq = 0
+    for c in input_text[0:index]:
+        if c == '\'':
+            sq = sq + 1
+        if c == '\"':
+            dq = dq + 1
+    return (sq % 2 == 1) and (dq % 2 == 1)
+
 def copy_and_edit_file(input_file):
-    # Create the output file name by appending ".edit" to the input file name
     base, ext = os.path.splitext(input_file)
     output_file = f"{base}.edit{ext}"
-
-    # Copy the input file to the output file
     shutil.copyfile(input_file, output_file)
-
-    # Open the output file for reading and writing
     with open(output_file, 'r') as file:
         lines = file.readlines()
-
-    # Edit each line (example: convert to uppercase)
-    # edited_lines = [line.upper() for line in lines]
+    
+    edited_lines = []
+    for line in lines:
+        if line.lstrip().startswith("--"):
+            continue
+        if "--" in line:
+            index = line.find("--")
+            if is_comment_in_text(line,index):
+                continue
+            edited_lines.append(line[0:index].strip()+"\n")
+        else:
+            edited_lines.append(line)
 
     # Write the edited lines back to the output file
     with open(output_file, 'w') as file:
