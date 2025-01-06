@@ -5,7 +5,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- Personal edit, for latex
 -- vimtex configuration
@@ -32,13 +32,22 @@ vim.opt.spell = false
 -- Set spell languages
 vim.opt.spelllang = { 'en_us' }
 
+local function ZathuraOpenPdf()
+  local fullPath = vim.fn.expand '%:p'
+  local pdfFile = fullPath:gsub('.tex$', '.pdf')
+  os.execute('zathura ' .. pdfFile .. ' &')
+end
+
+vim.keymap.set('n', '<F5>', ZathuraOpenPdf, { noremap = true, silent = true })
+
 -- Optional: Point to your custom spell files
 vim.opt.spellfile = vim.fn.expand '~/.config/nvim/spell/en.utf-8.add'
 
 -- Optional: Spell checking settings
+vim.o.spell = true
 vim.opt.spellcapcheck = '' -- Disable capital checking
-vim.opt.spellsuggest = 'best,9' -- Maximum 9 spelling suggestions
-
+vim.opt.spellsuggest = 'best,5' -- Maximum 9 spelling suggestions
+vim.opt.runtimepath:append '~/.config/nvim/lua'
 -- Toggle spell checking
 vim.keymap.set('n', '<leader>zs', ':set spell!<CR>', { noremap = true, silent = true, desc = 'Toggle spell checking' })
 
@@ -53,31 +62,23 @@ vim.keymap.set('n', '<leader>zp', function()
 end, { noremap = true, silent = true, desc = 'Previous spelling error' })
 
 -- Show spelling suggestions
-vim.keymap.set('n', '<leader>z?', function()
-  vim.cmd 'normal! z='
-end, { noremap = true, silent = true, desc = 'Show spelling suggestions' })
+vim.keymap.set('n', '<leader>z?', 'z=', { noremap = true, desc = 'Show spelling suggestions' })
 
--- [[ Setting options ]]
--- See `:help vim.opt`
--- NOTE: You can change these options as you wish!
---  For more options, you can see `:help option-list`
+-- For hot reloading snippet changes
+vim.keymap.set('n', '<Leader>L', '<Cmd>lua require("luasnip.loaders.from_lua").load({paths = {"~/.config/nvim/LuaSnip/", "~/.config/nvim/LuaSnip/tex/" }})<CR>')
 
--- Make line numbers default
+-- Buffer keymaps
+vim.keymap.set('n', '<leader>bf', '<cmd>Telescope buffers<CR>', { desc = 'Open buffer list with Telescope', noremap = true, silent = true })
+vim.keymap.set('n', '<leader>bn', '<cmd>bnext<CR>', { desc = 'Go to next buffer', noremap = true, silent = true })
+vim.keymap.set('n', '<leader>bp', '<cmd>bprev<CR>', { desc = 'Go to previous buffer', noremap = true, silent = true })
+vim.keymap.set('n', '<leader>bd', '<cmd>bdelete<CR>', { desc = 'Switch to next buffer and delete current', noremap = true, silent = true })
+
 vim.opt.number = true
--- You can also add relative line numbers, to help with jumping.
---  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
-
--- Enable mouse mode, can be useful for resizing splits for example!
+vim.opt.relativenumber = true
 vim.opt.mouse = 'a'
-
--- Don't show the mode, since it's already in the status line
 vim.opt.showmode = false
 
 -- Sync clipboard between OS and Neovim.
---  Schedule the setting after `UiEnter` because it can increase startup-time.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
 vim.schedule(function()
   vim.opt.clipboard = 'unnamedplus'
 end)
@@ -101,14 +102,9 @@ vim.opt.updatetime = 250
 -- Decrease mapped sequence wait time
 -- Displays which-key popup sooner
 vim.opt.timeoutlen = 300
-
--- Configure how new splits should be opened
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 
--- Sets how neovim will display certain whitespace characters in the editor.
---  See `:help 'list'`
---  and `:help 'listchars'`
 vim.opt.list = true
 vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 
@@ -346,16 +342,31 @@ require('lazy').setup({
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { '<leader>z', group = '[Z]pell' },
+        { '<leader>L', group = 're[L]oad snippets' },
+        { '<leader>l', group = 'vimtex' },
+        { '<leader>b', group = '[B]uffers' },
       },
     },
   },
 
   -- NOTE: Plugins can specify dependencies.
-  --
-  -- The dependencies are proper plugin specifications as well - anything
-  -- you do for a plugin at the top level, you can do for a dependency.
-  --
-  -- Use the `dependencies` key to specify the dependencies of a particular plugin
+  {
+    'christoomey/vim-tmux-navigator',
+    cmd = {
+      'TmuxNavigateLeft',
+      'TmuxNavigateDown',
+      'TmuxNavigateUp',
+      'TmuxNavigateRight',
+      'TmuxNavigatePrevious',
+    },
+    keys = {
+      { '<c-h>', '<cmd><C-U>TmuxNavigateLeft<cr>' },
+      { '<c-j>', '<cmd><C-U>TmuxNavigateDown<cr>' },
+      { '<c-k>', '<cmd><C-U>TmuxNavigateUp<cr>' },
+      { '<c-l>', '<cmd><C-U>TmuxNavigateRight<cr>' },
+      { '<c-\\>', '<cmd><C-U>TmuxNavigatePrevious<cr>' },
+    },
+  },
 
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
@@ -439,23 +450,17 @@ require('lazy').setup({
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
-        -- You can pass additional configuration to Telescope to change the theme, layout, etc.
         builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
           winblend = 10,
           previewer = false,
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
-
-      -- It's also possible to pass additional configuration options.
-      --  See `:help telescope.builtin.live_grep()` for information about particular keys
       vim.keymap.set('n', '<leader>s/', function()
         builtin.live_grep {
           grep_open_files = true,
           prompt_title = 'Live Grep in Open Files',
         }
       end, { desc = '[S]earch [/] in Open Files' })
-
-      -- Shortcut for searching your Neovim configuration files
       vim.keymap.set('n', '<leader>sn', function()
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
@@ -812,7 +817,7 @@ require('lazy').setup({
         store_selection_keys = '<Tab>',
         update_events = 'TextChanged,TextChangedI',
       }
-      require('luasnip.loaders.from_lua').lazy_load { paths = { '~/.config/nvim/LuaSnip/' } }
+      require('luasnip.loaders.from_lua').lazy_load { paths = { '~/.config/nvim/LuaSnip/', '~/.config/nvim/LuaSnip/tex/' } }
 
       -- Set up keymappings for LuaSnip
       vim.cmd [[
