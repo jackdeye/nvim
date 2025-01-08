@@ -3,6 +3,7 @@ local helpers = require 'luasnip-helper-funcs'
 local tex_utils = require 'tex_utils'
 local get_visual = helpers.get_visual
 local in_mathzone = tex_utils.in_mathzone
+local in_environment_name = tex_utils.in_environment_name
 
 return {
   s(
@@ -42,6 +43,7 @@ return {
     ),
     { condition = line_begin }
   ),
+  --s({ trig = 'as', snippetType = 'autosnippet' }, t 'align*', { condition = in_environment_name }),
   s(
     { trig = 'hwt' },
     fmta(
@@ -82,5 +84,309 @@ return {
       },
       { delimiters = '<>' }
     )
+  ),
+
+  ----------------------------------------
+  --- Here are all of the math specific stuff
+  ----------------------------------------
+  s(
+    { trig = 'thm' },
+    fmta(
+      [[
+    \begin{thm}{<>}
+      <>
+    \end{thm}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+  s(
+    { trig = 'thmc' },
+    fmta(
+      [[
+    \begin{thmc}{<>}
+      <>
+    \end{thmc}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+  s(
+    { trig = 'cor' },
+    fmta(
+      [[
+    \begin{cor}{<>}
+      <>
+    \end{cor}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+
+  s(
+    { trig = 'corc' },
+    fmta(
+      [[
+    \begin{corc}{<>}
+      <>
+    \end{corc}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+
+  s(
+    { trig = 'clm' },
+    fmta(
+      [[
+    \begin{clm}{<>}
+      <>
+    \end{clm}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+
+  s(
+    { trig = 'wc' },
+    fmta(
+      [[
+    \begin{wc}{<>}
+      <>
+    \end{wc}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+
+  s(
+    { trig = 'thmcon' },
+    fmta(
+      [[
+    \begin{thmcon}{<>}
+      <>
+    \end{thmcon}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+
+  s(
+    { trig = 'ex' },
+    fmta(
+      [[
+    \begin{ex}{<>}
+      <>
+    \end{ex}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+
+  s(
+    { trig = 'exc' },
+    fmta(
+      [[
+    \begin{exc}{<>}
+      <>
+    \end{exc}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+
+  s(
+    { trig = 'dfn' },
+    fmta(
+      [[
+    \begin{dfn}{<>}
+      <>
+    \end{dfn}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+
+  s(
+    { trig = 'dfnc' },
+    fmta(
+      [[
+    \begin{dfnc}{<>}
+      <>
+    \end{dfnc}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+
+  s(
+    { trig = 'opn' },
+    fmta(
+      [[
+    \begin{opn}{<>}
+      <>
+    \end{opn}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+
+  s(
+    { trig = 'opnc' },
+    fmta(
+      [[
+    \begin{opnc}{<>}
+      <>
+    \end{opnc}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+
+  s(
+    { trig = 'qs' },
+    fmta(
+      [[
+    \begin{qs}{<>}
+      <>
+    \end{qs}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+
+  s(
+    { trig = 'pf' },
+    fmta(
+      [[
+    \begin{pf}[<>]
+      <>
+    \end{pf}
+    <>
+    ]],
+      {
+        i(1),
+        i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+
+  s(
+    { trig = 'nt' },
+    fmta(
+      [[
+    \begin{nt}
+      <>
+    \end{nt}
+    <>
+]],
+      {
+        i(1),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
   ),
 }
