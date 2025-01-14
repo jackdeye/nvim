@@ -6,22 +6,23 @@ local get_visual = helpers.get_visual
 
 return {
   s(
-    { trig = '([^%a])ee', regTrig = true, wordTrig = false },
-    fmta('<>e^{<>}', {
-      f(function(_, snip)
-        return snip.captures[1]
-      end),
-      d(1, get_visual),
-    }),
-    { condition = line_begin }
-  ),
-  s(
     { trig = '([%a%)%]%}])00', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
     fmta('<>_{<>}', {
       f(function(_, snip)
         return snip.captures[1]
       end),
       t '0',
+    })
+  ),
+  s(
+    { trig = '([%a%(%)%[%]%{%}])([1-9])([1-9])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
+    fmta('<>^{<>}', {
+      f(function(_, snip)
+        return snip.captures[1]
+      end),
+      f(function(_, snip)
+        return snip.captures[2]
+      end),
     })
   ),
 }

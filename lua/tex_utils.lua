@@ -10,7 +10,7 @@ tex_utils.in_comment = function() -- comment detection
 end
 tex_utils.in_env = function(name) -- generic environment detection
   local is_inside = vim.fn['vimtex#env#is_inside'](name)
-  return (is_inside[0] > 0 and is_inside[2] > 0)
+  return (is_inside[1] > 0 and is_inside[2] > 0)
 end
 -- A few concrete environments---adapt as needed
 tex_utils.in_equation = function() -- equation environment detection
@@ -19,8 +19,14 @@ end
 tex_utils.in_itemize = function() -- itemize environment detection
   return tex_utils.in_env 'itemize'
 end
+tex_utils.in_enumerate = function() -- equation environment detection
+  return tex_utils.in_env 'enumerate'
+end
 tex_utils.in_tikz = function() -- TikZ picture environment detection
   return tex_utils.in_env 'tikzpicture'
+end
+tex_utils.in_environment_name = function()
+  return vim.fn['vimtex#syntax#in_environment_name']() == 1
 end
 
 return tex_utils

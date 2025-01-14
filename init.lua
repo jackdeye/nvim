@@ -9,11 +9,17 @@ vim.g.have_nerd_font = true
 
 -- Personal edit, for latex
 -- vimtex configuration
+vim.g.vimtex_quickfix_open_on_warning = 0
+vim.g.vimtex_quickfix_mode = 0
 vim.g.vimtex_view_method = 'zathura'
 vim.g.vimtex_compiler_method = 'latexmk'
 vim.g.vimtex_compiler_latexmk = {
   continuous = 1,
-  options = { '-f', '-file-line-error', '-synctex=1', '-interaction=nonstopmode' },
+  options = { '-f', '-file-line-error', '-synctex=1', '-interaction=nonstopmode', '-quiet' },
+  ignore_warnings = {
+    'Underfull \\hbox',
+    'Overfull \\hbox',
+  },
 }
 vim.g.vimtex_view_general_viewer = 'okular'
 vim.g.vimtex_view_general_options = '--unique file:@pdf#src:@line@tex'
@@ -26,16 +32,28 @@ vim.g.vimtex_quickfix_ignore_filters = {
   'Package hyperref Warning: Token not allowed in a PDF string',
 }
 
+vim.g.vimtex_quickfix_ignore = {
+  'Overfull \\hbox',
+  'Underfull \\hbox',
+}
+
 -- Enable spell checking
-vim.opt.spell = false
+vim.opt.spell = true
 
 -- Set spell languages
 vim.opt.spelllang = { 'en_us' }
 
 local function ZathuraOpenPdf()
-  local fullPath = vim.fn.expand '%:p'
-  local pdfFile = fullPath:gsub('.tex$', '.pdf')
-  os.execute('zathura ' .. pdfFile .. ' &')
+  local file = vim.fn.expand '%:p'
+  local lines = vim.fn.readfile(file, '', 5)
+  for _, line in ipairs(lines) do
+    local root = line:match '%%!%s*TEX%s*root%s*=%s*(.+)'
+    if root then
+      file = vim.fn.fnamemodify(root:gsub('^%s*(.-)%s*$', '%1'), ':p')
+      break
+    end
+  end
+  os.execute('zathura "' .. file:gsub('.tex$', '.pdf') .. '" &')
 end
 
 vim.keymap.set('n', '<F5>', ZathuraOpenPdf, { noremap = true, silent = true })
@@ -63,6 +81,8 @@ end, { noremap = true, silent = true, desc = 'Previous spelling error' })
 
 -- Show spelling suggestions
 vim.keymap.set('n', '<leader>z?', 'z=', { noremap = true, desc = 'Show spelling suggestions' })
+
+vim.keymap.set('i', '<C-F>', '<Esc>[s1z=gi', { silent = true, desc = '[F]ixes the previous spelling mistake then returns to insert mode' })
 
 -- For hot reloading snippet changes
 vim.keymap.set('n', '<Leader>L', '<Cmd>lua require("luasnip.loaders.from_lua").load({paths = {"~/.config/nvim/LuaSnip/", "~/.config/nvim/LuaSnip/tex/" }})<CR>')
@@ -98,6 +118,9 @@ vim.opt.signcolumn = 'yes'
 
 -- Decrease update time
 vim.opt.updatetime = 250
+
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
 
 -- Decrease mapped sequence wait time
 -- Displays which-key popup sooner
@@ -154,13 +177,9 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 --vim.keymap.set('n', '<leader>ll' )
 vim.keymap.set('n', '<leader>ll', function()
   vim.cmd 'w'
-  -- Ensure clean compilation
   vim.cmd 'VimtexClean'
-  -- Compile multiple times to resolve TOC and cross-reference issues
-  for i = 1, 3 do
-    vim.cmd 'VimtexCompile'
-    vim.cmd 'sleep 200m'
-  end
+  -- Compile multiple times to resolve TOC and cross-reference issues, this was 1, 3, but this error magically fixed itself
+  vim.cmd 'VimtexCompile'
 end, {
   noremap = true,
   silent = true,

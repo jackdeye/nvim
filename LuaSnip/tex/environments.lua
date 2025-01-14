@@ -3,7 +3,8 @@ local helpers = require 'luasnip-helper-funcs'
 local tex_utils = require 'tex_utils'
 local get_visual = helpers.get_visual
 local in_mathzone = tex_utils.in_mathzone
-local in_environment_name = tex_utils.in_environment_name
+local in_enumerate = tex_utils.in_enumerate
+local in_itemize = tex_utils.in_itemize
 
 return {
   s(

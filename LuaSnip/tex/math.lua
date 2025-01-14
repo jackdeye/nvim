@@ -12,15 +12,15 @@ local fmta = require('luasnip.extras.fmt').fmta
 -- https://ejmastnak.com/tutorials/vim-latex/luasnip/
 ------------------------------------------
 return {
-  --  s(
-  --    { trig = '([^%a])ee', snippetType = 'autosnippet', regTrig = true, wordTrig = false },
-  --    fmta('<>e^{<>}', {
-  --      f(function(_, snip)
-  --        return snip.captures[1]
-  --      end),
-  --      d(1, get_visual),
-  --    })
-  --  ),
+  s(
+    { trig = '([^%a])ee', snippetType = 'autosnippet', regTrig = true, wordTrig = false },
+    fmta('<>e^{<>}', {
+      f(function(_, snip)
+        return snip.captures[1]
+      end),
+      d(1, get_visual),
+    })
+  ),
 
   --Greek characters
   s({ trig = ';a', snippetType = 'autosnippet' }, {
@@ -41,6 +41,12 @@ return {
   s({ trig = ';t', snippetType = 'autosnippet' }, {
     t '\\theta',
   }),
+  s({ trig = ';l', snippetType = 'autosnippet' }, {
+    t '\\lambda',
+  }),
+  s({ trig = ';x', snippetType = 'autosnippet' }, {
+    t '\\xi',
+  }),
   s({ trig = ';p', snippetType = 'autosnippet' }, {
     t '\\pi',
   }),
@@ -60,7 +66,7 @@ return {
   ),
 
   s(
-    { trig = 'ss', snippetType = 'autosnippet' },
+    { trig = 'sum', snippetType = 'autosnippet' },
     fmta('\\sum_{<>}^{<>}', {
       i(1, 'i=1'),
       i(2, '\\infty'),
@@ -83,6 +89,51 @@ return {
     }, { delimiters = '<>' }),
     { condition = in_mathzone }
   ),
+  s(
+    { trig = 'sq', snippetType = 'autosnippet' },
+    fmta('\\sqrt{<>} ', {
+      i(1),
+    }, { delimiters = '<>' }),
+    { condition = in_mathzone }
+  ),
+  s({
+    trig = 'cd',
+    snippetType = 'autosnippet',
+  }, { t '\\cdot ' }, { condition = in_mathzone }),
+
+  -----------------------------------
+  --- Set Notation and logical Operators
+  s({
+    trig = 'jj',
+    snippetType = 'autosnippet',
+  }, { t '\\in' }, { condition = in_mathzone }),
+  s({
+    trig = 'sse',
+    snippetType = 'autosnippet',
+  }, { t '\\subseteq' }, { condition = in_mathzone }),
+  s({
+    trig = 'ssn',
+    snippetType = 'autosnippet',
+  }, { t '\\subsetneq' }, { condition = in_mathzone }),
+  s({
+    trig = 'ex',
+    snippetType = 'autosnippet',
+  }, { t '\\exists ' }, { condition = in_mathzone }),
+  s({
+    trig = 'fa',
+    snippetType = 'autosnippet',
+  }, { t '\\forall ' }, { condition = in_mathzone }),
+  s({
+    trig = 'im',
+    snippetType = 'autosnippet',
+  }, { t '\\implies' }, { condition = in_mathzone }),
+
+  ------------------------------------
+  --- Delimiters
+  s({
+    trig = '[',
+    snippetType = 'autosnippet',
+  }, fmta('[<>]', { i(1) }, { delimiters = '<>' }), { condition = in_mathzone }),
   s({
     trig = '(',
     snippetType = 'autosnippet',
@@ -103,6 +154,36 @@ return {
       wordtrig = false,
     },
     fmta('<>_{<>}', {
+      f(function(_, snip)
+        return snip.captures[1]
+      end),
+      d(1, get_visual),
+    }),
+    { condition = in_mathzone }
+  ),
+  s(
+    {
+      trig = '([%a])^',
+      snippetType = 'autosnippet',
+      regTrig = true,
+      wordtrig = false,
+    },
+    fmta('<>^{<>}', {
+      f(function(_, snip)
+        return snip.captures[1]
+      end),
+      d(1, get_visual),
+    }),
+    { condition = in_mathzone }
+  ),
+  s(
+    {
+      trig = '([%a])%(',
+      snippetType = 'autosnippet',
+      regTrig = true,
+      wordtrig = false,
+    },
+    fmta('<>(<>) ', {
       f(function(_, snip)
         return snip.captures[1]
       end),
