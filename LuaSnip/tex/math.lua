@@ -19,7 +19,46 @@ return {
         return snip.captures[1]
       end),
       d(1, get_visual),
-    })
+    }),
+    { condition = in_mathzone }
+  ),
+
+  -- Uses back references!
+  s(
+    { trig = '([%a])([0-9nk])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
+    fmta('<>_{<>}', {
+      f(function(_, snip)
+        return snip.captures[1]
+      end),
+      f(function(_, snip)
+        return snip.captures[2]
+      end),
+    }),
+    { condition = in_mathzone }
+  ),
+  s(
+    { trig = '([%a])_%{([0-9nk])%}(%2)', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
+    fmta('<>^{<>} ', {
+      f(function(_, snip)
+        return snip.captures[1]
+      end),
+      f(function(_, snip)
+        return snip.captures[2]
+      end),
+    }),
+    { condition = in_mathzone }
+  ),
+  s(
+    { trig = '([%d])([x])(%2)', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
+    fmta('<>^{<>} ', {
+      f(function(_, snip)
+        return snip.captures[1]
+      end),
+      f(function(_, snip)
+        return snip.captures[2]
+      end),
+    }),
+    { condition = in_mathzone }
   ),
 
   --Greek characters
@@ -96,17 +135,34 @@ return {
     }, { delimiters = '<>' }),
     { condition = in_mathzone }
   ),
+  s(
+    { trig = 'cr', snippetType = 'autosnippet' },
+    fmta('\\sqrt[<>]{<>} ', {
+      i(1, '3'),
+      i(2),
+    }, { delimiters = '<>' }),
+    { condition = in_mathzone }
+  ),
   s({
     trig = 'cd',
     snippetType = 'autosnippet',
   }, { t '\\cdot ' }, { condition = in_mathzone }),
+  s({
+    trig = 'le',
+    snippetType = 'autosnippet',
+  }, { t '\\leq ' }, { condition = in_mathzone }),
+
+  s({
+    trig = 'ge',
+    snippetType = 'autosnippet',
+  }, { t '\\geq ' }, { condition = in_mathzone }),
 
   -----------------------------------
   --- Set Notation and logical Operators
   s({
-    trig = 'jj',
+    trig = 'dd',
     snippetType = 'autosnippet',
-  }, { t '\\in' }, { condition = in_mathzone }),
+  }, { t '\\in ' }, { condition = in_mathzone }),
   s({
     trig = 'sse',
     snippetType = 'autosnippet',
