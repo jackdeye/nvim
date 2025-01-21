@@ -9,7 +9,7 @@ local in_itemize = tex_utils.in_itemize
 return {
   s(
     { trig = '([^%a])mm', wordTrig = false, regTrig = true, snippetType = 'autosnippet' },
-    fmta('<>$<>$ ', {
+    fmta('<>$<>$', {
       f(function(_, snip)
         return snip.captures[1]
       end),
@@ -28,6 +28,31 @@ return {
     ),
     { condition = line_begin }
   ),
+  s(
+    { trig = 'ale', snippetType = 'autosnippet', dscr = 'A LaTeX align environment' },
+    fmta(
+      [[
+      \begin{align}
+          <>
+      \end{align}
+    ]],
+      { i(1) }
+    ),
+    { condition = line_begin }
+  ),
+  s(
+    { trig = 'als', snippetType = 'autosnippet', dscr = 'A LaTeX align-star environment' },
+    fmta(
+      [[
+      \begin{align*}
+          <>
+      \end{align*}
+    ]],
+      { i(1) }
+    ),
+    { condition = line_begin }
+  ),
+
   s(
     { trig = 'beg', snippetType = 'autosnippet' },
     fmta(

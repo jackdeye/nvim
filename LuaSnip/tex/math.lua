@@ -25,13 +25,13 @@ return {
 
   -- Uses back references!
   s(
-    { trig = '(([^%a])[%a%)])([0-9nk])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
+    { trig = '([%a%)])([0-9nk])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
     fmta('<>_{<>}', {
       f(function(_, snip)
         return snip.captures[1]
       end),
       f(function(_, snip)
-        return snip.captures[3]
+        return snip.captures[2]
       end),
     }),
     { condition = in_mathzone }
