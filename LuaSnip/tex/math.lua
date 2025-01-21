@@ -25,19 +25,19 @@ return {
 
   -- Uses back references!
   s(
-    { trig = '([%a])([0-9nk])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
+    { trig = '(([^%a])[%a%)])([0-9nk])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
     fmta('<>_{<>}', {
       f(function(_, snip)
         return snip.captures[1]
       end),
       f(function(_, snip)
-        return snip.captures[2]
+        return snip.captures[3]
       end),
     }),
     { condition = in_mathzone }
   ),
   s(
-    { trig = '([%a])_%{([0-9nk])%}(%2)', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
+    { trig = '([%a%)])_%{([0-9nk])%}(%2)', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
     fmta('<>^{<>} ', {
       f(function(_, snip)
         return snip.captures[1]
@@ -219,7 +219,7 @@ return {
   ),
   s(
     {
-      trig = '([%a])^',
+      trig = '([%a0-9])^',
       snippetType = 'autosnippet',
       regTrig = true,
       wordtrig = false,
