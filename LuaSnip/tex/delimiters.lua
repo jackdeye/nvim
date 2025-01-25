@@ -8,7 +8,7 @@ return {
   s({ trig = 'tb', desc = 'Text Bold' }, fmta('\\textbf{<>}', { i(1) })),
 
   s('tu', fmta('\\underline{<>}', { i(1) })),
-  s({ trig = 'ti', desc = 'Text Italics' }, fmta('\\textbf{<>}', { i(1) })),
+  s({ trig = 'ti', desc = 'Text Italics' }, fmta('\\textit{<>}', { i(1) })),
 
   s('tt', fmta('\\text{<>}', { i(1) })),
 

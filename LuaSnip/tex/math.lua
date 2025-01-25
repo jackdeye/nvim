@@ -25,7 +25,7 @@ return {
 
   -- Uses back references!
   s(
-    { trig = '([%a%)])([0-9nk])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
+    { trig = '([%a%)])([0-9])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
     fmta('<>_{<>}', {
       f(function(_, snip)
         return snip.captures[1]
@@ -36,6 +36,19 @@ return {
     }),
     { condition = in_mathzone }
   ),
+  s(
+    { trig = '([^%a][%a%)])([nk])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
+    fmta('<>_{<>}', {
+      f(function(_, snip)
+        return snip.captures[1]
+      end),
+      f(function(_, snip)
+        return snip.captures[2]
+      end),
+    }),
+    { condition = in_mathzone }
+  ),
+
   s(
     { trig = '([%a%)])_%{([0-9nk])%}(%2)', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
     fmta('<>^{<>} ', {
@@ -49,13 +62,10 @@ return {
     { condition = in_mathzone }
   ),
   s(
-    { trig = '([%d])([x])(%2)', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
-    fmta('<>^{<>} ', {
+    { trig = 'bb(%a)', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
+    fmta('\\bb<>', {
       f(function(_, snip)
         return snip.captures[1]
-      end),
-      f(function(_, snip)
-        return snip.captures[2]
       end),
     }),
     { condition = in_mathzone }
@@ -89,7 +99,7 @@ return {
   s({ trig = ';p', snippetType = 'autosnippet' }, {
     t '\\pi',
   }),
-  s({ trig = '([^%a])ii', snippetType = 'autosnippet', regTrig = true, wordTrig = false }, {
+  s({ trig = 'ii', snippetType = 'autosnippet' }, {
     t '\\infty',
   }),
   s({ trig = '...', snippetType = 'autosnippet' }, {
