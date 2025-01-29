@@ -41,22 +41,37 @@ vim.g.vimtex_quickfix_ignore = {
 vim.opt.spell = true
 
 -- Set spell languages
-vim.opt.spelllang = { 'en_us' }
+vim.opt.spelllang = { 'en' }
 
-local function ZathuraOpenPdf()
+local function get_tex_root()
   local file = vim.fn.expand '%:p'
   local lines = vim.fn.readfile(file, '', 5)
   for _, line in ipairs(lines) do
     local root = line:match '%%!%s*TEX%s*root%s*=%s*(.+)'
     if root then
-      file = vim.fn.fnamemodify(root:gsub('^%s*(.-)%s*$', '%1'), ':p')
-      break
+      return vim.fn.fnamemodify(root:gsub('^%s*(.-)%s*$', '%1'), ':p')
     end
   end
+  return file
+end
+
+local function ZathuraOpenPdf()
+  local file = get_tex_root()
   os.execute('zathura "' .. file:gsub('.tex$', '.pdf') .. '" &')
 end
 
 vim.keymap.set('n', '<F5>', ZathuraOpenPdf, { noremap = true, silent = true })
+
+local function compile_with_pdflatex()
+  local tex_file = get_tex_root()
+  local cmd = string.format('pdflatex -interaction=nonstopmode -synctex=1 %s', tex_file)
+  vim.fn.system('silent!' .. cmd)
+end
+
+vim.keymap.set('n', '<leader>lp', compile_with_pdflatex, {
+  desc = 'Compile LaTeX with pdflatex (to get TOC)',
+  buffer = true,
+})
 
 -- Optional: Point to your custom spell files
 vim.opt.spellfile = vim.fn.expand '~/.config/nvim/spell/en.utf-8.add'
@@ -175,6 +190,7 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 
 --Was going to add automatic saving to leader ll, but idk how to convert noremap <localleader>c <Cmd>update<CR><Cmd>VimtexCompileSS<CR> into lua.
 --vim.keymap.set('n', '<leader>ll' )
+
 vim.keymap.set('n', '<leader>ll', function()
   vim.cmd 'w'
   vim.cmd 'VimtexClean'
@@ -667,7 +683,7 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         -- gopls = {},
-        -- pyright = {},
+        pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -726,6 +742,8 @@ require('lazy').setup({
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
         'texlab', -- Used to format latex code
+        'black', -- Used to format python code
+        'prettier', --Used to format HTML/CSS
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -859,7 +877,7 @@ require('lazy').setup({
         -- chosen, you will need to read `:help ins-completion`
         --
         -- No, but seriously. Please read `:help ins-completion`, it is really good!
-        mapping = cmp.mapping.preset.insert {
+        mapping = {
           -- Select the [n]ext item
           ['<C-n>'] = cmp.mapping.select_next_item(),
           -- Select the [p]revious item

@@ -37,7 +37,7 @@ return {
     { condition = in_mathzone }
   ),
   s(
-    { trig = '([^%a][%a%)])([nk])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
+    { trig = '([^%a^\\][%a%)])([nk])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
     fmta('<>_{<>}', {
       f(function(_, snip)
         return snip.captures[1]
@@ -92,6 +92,9 @@ return {
   }),
   s({ trig = ';l', snippetType = 'autosnippet' }, {
     t '\\lambda',
+  }),
+  s({ trig = ';m', snippetType = 'autosnippet' }, {
+    t '\\mu',
   }),
   s({ trig = ';x', snippetType = 'autosnippet' }, {
     t '\\xi',
