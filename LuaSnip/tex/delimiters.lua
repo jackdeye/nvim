@@ -20,4 +20,27 @@ return {
     }, { delimiters = '<>' }),
     { condition = in_mathzone }
   ),
+  s(
+    { trig = 'lr', snippetType = 'autosnippet' },
+    fmta('\\left<><> \\right<> <>', {
+      i(1),
+      i(2),
+      f(function(args)
+        local delimiters = {
+          ['('] = ')',
+          ['['] = ']',
+          ['{'] = '}',
+        }
+        local input = args[1][1]
+        if input then
+          local first_char = input:sub(1, 1)
+          return delimiters[first_char] or first_char
+        else
+          return ''
+        end
+      end, { 1 }),
+      i(0),
+    }, { delimiters = '<>' }),
+    { condition = in_mathzone }
+  ),
 }

@@ -8,7 +8,7 @@ local s = ls.snippet
 local t = ls.text_node
 local i = ls.insert_node
 local fmta = require('luasnip.extras.fmt').fmta
-
+local punct = '-+?{}[]()$*|<>,.^'
 -- https://ejmastnak.com/tutorials/vim-latex/luasnip/
 ------------------------------------------
 return {
@@ -37,14 +37,20 @@ return {
     { condition = in_mathzone }
   ),
   s(
-    { trig = '([^%a^\\][%a%)])([nk])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
-    fmta('<>_{<>}', {
+    { trig = '([^\\])([a-hk-z%u%)])([nkij])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
+    --{ trig = '([%a%)])([nki])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
+    fmta('<>_{<>}<>', {
       f(function(_, snip)
-        return snip.captures[1]
+        if snip.captures[1] == '' then
+          return snip.captures[2]
+        else
+          return snip.captures[1] .. snip.captures[2]
+        end
       end),
       f(function(_, snip)
-        return snip.captures[2]
+        return snip.captures[3]
       end),
+      i(0),
     }),
     { condition = in_mathzone }
   ),
@@ -102,6 +108,9 @@ return {
   s({ trig = ';p', snippetType = 'autosnippet' }, {
     t '\\pi',
   }),
+  s({ trig = ';s', snippetType = 'autosnippet' }, {
+    t '\\sigma',
+  }),
   s({ trig = 'ii', snippetType = 'autosnippet' }, {
     t '\\infty',
   }),
@@ -116,9 +125,11 @@ return {
       i(2),
     }, { delimiters = '<>' })
   ),
-
+  s({ trig = 'sum', snippetType = 'autosnippet' }, t '\\sum', { condition = in_mathzone }),
+  s({ trig = 'lim', snippetType = 'autosnippet' }, t '\\lim', { condition = in_mathzone }),
+  s({ trig = 'int', snippetType = 'autosnippet' }, t '\\int', { condition = in_mathzone }),
   s(
-    { trig = 'sum', snippetType = 'autosnippet' },
+    { trig = 'Sum', snippetType = 'autosnippet' },
     fmta('\\sum_{<>}^{<>}', {
       i(1, 'i=1'),
       i(2, '\\infty'),
@@ -126,7 +137,7 @@ return {
     { condition = in_mathzone }
   ),
   s(
-    { trig = 'int', snippetType = 'autosnippet' },
+    { trig = 'Int', snippetType = 'autosnippet' },
     fmta('\\int_{<>}^{<>}', {
       i(1),
       i(2),
@@ -134,9 +145,9 @@ return {
     { condition = in_mathzone }
   ),
   s(
-    { trig = 'lim', snippetType = 'autosnippet' },
+    { trig = 'Lim', snippetType = 'autosnippet' },
     fmta('\\lim_{<> \\to <>}', {
-      i(1, 'x'),
+      i(1, 'n'),
       i(2, '\\infty'),
     }, { delimiters = '<>' }),
     { condition = in_mathzone }
