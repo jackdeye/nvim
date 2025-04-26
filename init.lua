@@ -1,10 +1,5 @@
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
-
--- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
 
 -- Personal edit, for latex
@@ -92,18 +87,12 @@ vim.opt.spellsuggest = 'best,5' -- Maximum 9 spelling suggestions
 vim.opt.runtimepath:append '~/.config/nvim/lua'
 -- Toggle spell checking
 vim.keymap.set('n', '<leader>zs', ':set spell!<CR>', { noremap = true, silent = true, desc = 'Toggle spell checking' })
-
--- Move to next spelling error
 vim.keymap.set('n', '<leader>zn', function()
   vim.cmd 'normal! ]s'
 end, { noremap = true, silent = true, desc = 'Next spelling error' })
-
--- Move to previous spelling error
 vim.keymap.set('n', '<leader>zp', function()
   vim.cmd 'normal! [s'
 end, { noremap = true, silent = true, desc = 'Previous spelling error' })
-
--- Show spelling suggestions
 vim.keymap.set('n', '<leader>z?', 'z=', { noremap = true, desc = 'Show spelling suggestions' })
 
 vim.keymap.set('i', '<C-F>', '<Esc>[s1z=gi', { silent = true, desc = '[F]ixes the previous spelling mistake then returns to insert mode' })
@@ -236,6 +225,7 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
+require 'latex_evaluator'
 -- [[ Configure and install plugins ]]
 --
 --  To check the current status of your plugins, run
