@@ -2,6 +2,7 @@ local helpers = require 'luasnip-helper-funcs'
 local get_visual = helpers.get_visual
 local tex_utils = require 'tex_utils'
 local in_mathzone = tex_utils.in_mathzone
+local conds = require 'luasnip.extras.conditions'
 -- The following is totally unnecessary, I just included it to stop unnecessary lsp warnings
 local ls = require 'luasnip'
 local s = ls.snippet
@@ -9,6 +10,28 @@ local t = ls.text_node
 local i = ls.insert_node
 local fmta = require('luasnip.extras.fmt').fmta
 local punct = '-+?{}[]()$*|<>,.^'
+
+-- For Debugging
+-- local function log_debug(msg)
+-- vim.notify(msg, vim.log.levels.INFO)
+-- end
+
+-- Factory function that returns a condition function
+local function is_not_preceded_by(pattern_to_avoid)
+  return function(line_to_cursor, matched_trigger, captures)
+    local line = vim.fn.getline '.'
+    local col = vim.fn.col '.' - 1
+    local trig_len = #matched_trigger
+    local trig_start_col = col - trig_len
+    if trig_start_col <= 0 then
+      return true
+    end
+    local char_before = string.sub(line, trig_start_col, trig_start_col)
+    local match_result = string.match(char_before, pattern_to_avoid)
+    local comparison_result = match_result == nil -- true if no match (pattern not found)
+    return comparison_result
+  end
+end
 -- https://ejmastnak.com/tutorials/vim-latex/luasnip/
 local greek_letters = {
   a = '\\alpha',
@@ -52,6 +75,17 @@ local snippets = {
     { condition = in_mathzone }
   ),
 
+  s({
+    trig = 'foo',
+    snippetType = 'autosnippet',
+    wordTrig = false,
+    priority = 2000,
+  }, {
+    t "TRIGGERED: Pure Foo Test! (USING 'condition' KEY)",
+  }, {
+    condition = conds.make_condition(is_not_preceded_by '[%a]'),
+  }),
+
   s(
     { trig = '([%a%)])([0-9])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
     fmta('<>_{<>}', {
@@ -62,7 +96,11 @@ local snippets = {
         return snip.captures[2]
       end),
     }),
-    { condition = in_mathzone }
+    { -- I could make a factory that combines conditions, but for now, this is works
+      condition = conds.make_condition(function(line_to_cursor, matched_trigger, captures)
+        return in_mathzone() and is_not_preceded_by '[%a]'(line_to_cursor, matched_trigger, captures)
+      end),
+    }
   ),
   -- This autosnippet has both saved me the most time and has beenthe most difficult for me to get, I am constantly tweaking it.
   -- In general, I want "an"->"a_{n}", however, say for "\align" -/->"\alig_{n}". The reason why I have the following "gaps" in my regex are because:
@@ -186,6 +224,22 @@ local snippets = {
       i(3),
       i(4),
     }, { delimiters = '<>' }),
+    { condition = in_mathzone }
+  ),
+  s(
+    { trig = 'ob', snippetType = 'autosnippet' },
+    fmta([[\overbrace{<>}^{<>}]], {
+      d(1, get_visual),
+      i(2),
+    }),
+    { condition = in_mathzone }
+  ),
+  s(
+    { trig = 'ub', snippetType = 'autosnippet' },
+    fmta([[\underbrace{<>}_{<>}]], {
+      d(1, get_visual),
+      i(2),
+    }),
     { condition = in_mathzone }
   ),
   s(

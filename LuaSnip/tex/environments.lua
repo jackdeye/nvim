@@ -6,6 +6,27 @@ local in_mathzone = tex_utils.in_mathzone
 local in_enumerate = tex_utils.in_enumerate
 local in_itemize = tex_utils.in_itemize
 
+-- generating function
+local mat = function(args, snip)
+  local rows = tonumber(snip.captures[2])
+  local cols = tonumber(snip.captures[3])
+  local nodes = {}
+  local ins_indx = 1
+  for j = 1, rows do
+    table.insert(nodes, r(ins_indx, tostring(j) .. 'x1', i(1)))
+    ins_indx = ins_indx + 1
+    for k = 2, cols do
+      table.insert(nodes, t ' & ')
+      table.insert(nodes, r(ins_indx, tostring(j) .. 'x' .. tostring(k), i(1)))
+      ins_indx = ins_indx + 1
+    end
+    table.insert(nodes, t { ' \\\\', '' })
+  end
+  -- fix last node.
+  nodes[#nodes] = t ' \\\\'
+  return sn(nil, nodes)
+end
+
 return {
   s(
     { trig = '([^%a])mm', wordTrig = false, regTrig = true, snippetType = 'autosnippet' },
@@ -69,7 +90,36 @@ return {
     ),
     { condition = line_begin }
   ),
-  --s({ trig = 'as', snippetType = 'autosnippet' }, t 'align*', { condition = in_environment_name }),
+  s(
+    { trig = 'ibeg ', snippetType = 'autosnippet' },
+    fmta('\\begin{<>} <> \\end{<>}', {
+      i(1),
+      i(2),
+      rep(1),
+    }),
+    { condition = in_mathzone() }
+  ),
+
+  s(
+    { trig = '([bBpvV])mat(%d+)(%d+)', regTrig = true, name = 'matrix', dscr = 'matrix trigger lets go', hidden = true },
+    fmt(
+      [[
+    \begin{<>}
+    <>
+    \end{<>}]],
+      {
+        f(function(_, snip)
+          return snip.captures[1] .. 'matrix' -- captures matrix type
+        end),
+        d(1, mat),
+        f(function(_, snip)
+          return snip.captures[1] .. 'matrix' -- i think i could probably use a repeat node but whatever
+        end),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = in_mathzone(), show_condition = in_mathzone() }
+  ), --s({ trig = 'as', snippetType = 'autosnippet' }, t 'align*', { condition = in_environment_name }),
   s(
     { trig = 'hwt' },
     fmta(
