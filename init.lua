@@ -10,7 +10,7 @@ vim.g.vimtex_view_method = 'zathura'
 vim.g.vimtex_compiler_method = 'latexmk'
 vim.g.vimtex_compiler_latexmk = {
   continuous = 1,
-  options = { '-f', '-file-line-error', '-synctex=1', '-interaction=nonstopmode', '-quiet' },
+  options = { '-f', '-file-line-error', '-synctex=1', '-interaction=nonstopmode', '-quiet', '-shell-escape' },
   ignore_warnings = {
     'Underfull \\hbox',
     'Overfull \\hbox',
@@ -77,6 +77,19 @@ vim.keymap.set('n', '<leader>lp', compile_with_pdflatex, {
   buffer = true,
 })
 
+local my_utils = require 'my_utils'
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'tex',
+  callback = function()
+    vim.keymap.set('n', '<leader>cc', my_utils.create_and_insert_codeblock, {
+      noremap = true,
+      silent = true,
+      desc = 'Create and insert a code block',
+    })
+  end,
+})
+
 -- Optional: Point to your custom spell files
 vim.opt.spellfile = vim.fn.expand '~/.config/nvim/spell/en.utf-8.add'
 
@@ -112,10 +125,24 @@ vim.opt.mouse = 'a'
 vim.opt.showmode = false
 
 -- Sync clipboard between OS and Neovim.
-vim.schedule(function()
-  vim.opt.clipboard = 'unnamedplus'
-end)
+-- Define the absolute path to your Windows binary
+local win32yank_path = '/mnt/c/tools/neovim/nvim-win64/bin/win32yank.exe'
 
+vim.g.clipboard = {
+  name = 'win32yank-wsl',
+  copy = {
+    ['+'] = win32yank_path .. ' -i --crlf',
+    ['*'] = win32yank_path .. ' -i --crlf',
+  },
+  paste = {
+    ['+'] = win32yank_path .. ' -o --lf',
+    ['*'] = win32yank_path .. ' -o --lf',
+  },
+  cache_enabled = 0,
+}
+
+-- Ensure this is NOT inside a vim.schedule block
+vim.opt.clipboard = 'unnamedplus'
 -- Enable break indent
 vim.opt.breakindent = true
 
@@ -134,6 +161,8 @@ vim.opt.updatetime = 250
 
 vim.opt.tabstop = 4
 vim.opt.shiftwidth = 4
+vim.opt.softtabstop = 4
+vim.opt.expandtab = true
 
 -- Decrease mapped sequence wait time
 -- Displays which-key popup sooner
@@ -226,6 +255,8 @@ end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
 require 'latex_evaluator'
+require 'stats_notebook'
+require 'inkscape'
 -- [[ Configure and install plugins ]]
 --
 --  To check the current status of your plugins, run

@@ -5,12 +5,22 @@ local tex_utils = require 'tex_utils'
 local in_mathzone = tex_utils.in_mathzone
 
 return {
-  s({ trig = 'tb', desc = 'Text Bold' }, fmta('\\textbf{<>}', { i(1) })),
-
-  s('tu', fmta('\\underline{<>}', { i(1) })),
-  s({ trig = 'ti', desc = 'Text Italics' }, fmta('\\textit{<>}', { i(1) })),
+  s({ trig = 'tb', desc = 'Text Bold' }, fmta('\\textbf{<>}', { d(1, get_visual) })),
+  s({ trig = 'tw', desc = 'Typewritter Text' }, fmta('\\texttt{<>}', { d(1, get_visual) })),
+  s('tu', fmta('\\underline{<>}', { d(1, get_visual) })),
+  s({ trig = 'abk', snippetType = 'autosnippet' }, fmta('\\langle <>\\rangle', { d(1, get_visual) })),
+  s({ trig = 'ti', desc = 'Text Italics' }, fmta('\\textit{<>}', { d(1, get_visual) })),
+  s({ trig = 'bx', desc = 'Text Italics' }, fmta('\\boxed{<>}', { d(1, get_visual) })),
 
   s('tt', fmta('\\text{<>}', { i(1) })),
+
+  s(
+    { trig = 'gg', snippetType = 'autosnippet' },
+    fmta('\\{<>\\}', {
+      i(1),
+    }, { delimiters = '<>' }),
+    { condition = in_mathzone }
+  ),
 
   s(
     { trig = 'ff', snippetType = 'autosnippet' },

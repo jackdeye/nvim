@@ -27,6 +27,33 @@ local mat = function(args, snip)
   return sn(nil, nodes)
 end
 
+local imat = function(args, snip)
+  local rows = tonumber(snip.captures[2])
+  local cols = tonumber(snip.captures[3])
+  local nodes = {}
+  local ins_indx = 1
+
+  for j = 1, rows do
+    -- first column
+    table.insert(nodes, r(ins_indx, j .. 'x1', i(1)))
+    ins_indx = ins_indx + 1
+
+    -- remaining columns
+    for k = 2, cols do
+      table.insert(nodes, t ' & ')
+      table.insert(nodes, r(ins_indx, j .. 'x' .. k, i(1)))
+      ins_indx = ins_indx + 1
+    end
+
+    -- add \\ between rows, but inline
+    if j < rows then
+      table.insert(nodes, t ' \\\\ ')
+    end
+  end
+
+  return sn(nil, nodes)
+end
+
 return {
   s(
     { trig = '([^%a])mm', wordTrig = false, regTrig = true, snippetType = 'autosnippet' },
@@ -91,13 +118,25 @@ return {
     { condition = line_begin }
   ),
   s(
+    { trig = 'sbs', snippetType = 'autosnippet' },
+    fmta(
+      [[ \subsection*{<>}
+      ]],
+      {
+        i(1),
+      }
+    ),
+    { condition = line_begin }
+  ),
+
+  s(
     { trig = 'ibeg ', snippetType = 'autosnippet' },
     fmta('\\begin{<>} <> \\end{<>}', {
       i(1),
       i(2),
       rep(1),
     }),
-    { condition = in_mathzone() }
+    { condition = in_mathzone }
   ),
 
   s(
@@ -118,8 +157,22 @@ return {
       },
       { delimiters = '<>' }
     ),
-    { condition = in_mathzone(), show_condition = in_mathzone() }
+    { condition = in_mathzone, show_condition = in_mathzone }
   ), --s({ trig = 'as', snippetType = 'autosnippet' }, t 'align*', { condition = in_environment_name }),
+  s(
+    { trig = 'i([bBpvV])mat(%d+)(%d+)', regTrig = true, name = 'matrix', dscr = 'matrix trigger lets go', hidden = true },
+    fmt([[ \begin{<>} <> \end{<>}]], {
+      f(function(_, snip)
+        return snip.captures[1] .. 'matrix' -- captures matrix type
+      end),
+      d(1, imat),
+      f(function(_, snip)
+        return snip.captures[1] .. 'matrix' -- i think i could probably use a repeat node but whatever
+      end),
+    }, { delimiters = '<>' }),
+    { condition = in_mathzone, show_condition = in_mathzone }
+  ),
+
   s(
     { trig = 'hwt' },
     fmta(
@@ -161,7 +214,7 @@ return {
       { delimiters = '<>' }
     )
   ),
-
+  s({ trig = 'split' }, t '\\noindent$\\rule{\\textwidth}{1pt}$', { condition = line_begin }),
   ----------------------------------------
   --- Here are all of the math specific stuff
   ----------------------------------------
@@ -195,6 +248,24 @@ return {
       {
         i(1),
         i(2),
+        i(0),
+      },
+      { delimiters = '<>' }
+    ),
+    { condition = line_begin }
+  ),
+  s(
+    { trig = 'code' },
+    fmta(
+      [[
+    \begin{codeblock}{<>}
+      <>
+    \end{codeblock}
+    <>
+    ]],
+      {
+        i(1, 'language'), -- e.g., python, java, etc.
+        i(2, 'code here'),
         i(0),
       },
       { delimiters = '<>' }

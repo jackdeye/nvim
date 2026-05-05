@@ -38,10 +38,14 @@ local greek_letters = {
   A = '\\Alpha',
   b = '\\beta',
   B = '\\Beta',
+  c = '\\chi',
+  C = '\\Chi',
   d = '\\delta',
   D = '\\Delta',
   e = '\\epsilon',
   E = '\\Epsilon',
+  h = '\\phi',
+  H = '\\Phi',
   g = '\\gamma',
   G = '\\Gamma',
   l = '\\lambda',
@@ -75,17 +79,6 @@ local snippets = {
     { condition = in_mathzone }
   ),
 
-  s({
-    trig = 'foo',
-    snippetType = 'autosnippet',
-    wordTrig = false,
-    priority = 2000,
-  }, {
-    t "TRIGGERED: Pure Foo Test! (USING 'condition' KEY)",
-  }, {
-    condition = conds.make_condition(is_not_preceded_by '[%a]'),
-  }),
-
   s(
     { trig = '([%a%)])([0-9])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
     fmta('<>_{<>}', {
@@ -106,21 +99,21 @@ local snippets = {
   -- In general, I want "an"->"a_{n}", however, say for "\align" -/->"\alig_{n}". The reason why I have the following "gaps" in my regex are because:
   -- Int -/-> I_{n}t, instead
   s(
-    { trig = '([^\\%a])([a-hk-zA-HJ-Z)])([nkj])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
+    { trig = '([a-hkm-zA-HJ-Z)])([nkj])', regTrig = true, wordTrig = false, snippetType = 'autosnippet' },
     fmta('<>_{<>}<>', {
       f(function(_, snip)
-        if snip.captures[1] == '' then
-          return snip.captures[2]
-        else
-          return snip.captures[1] .. snip.captures[2]
-        end
+        return snip.captures[1]
       end),
       f(function(_, snip)
-        return snip.captures[3]
+        return snip.captures[2]
       end),
       i(0),
     }),
-    { condition = in_mathzone }
+    {
+      condition = conds.make_condition(function(line_to_cursor, matched_trigger, captures)
+        return in_mathzone() and is_not_preceded_by '[\\%a]'(line_to_cursor, matched_trigger, captures)
+      end),
+    }
   ),
   -- Uses back references!
   s(
@@ -177,19 +170,38 @@ local snippets = {
       i(2),
     }, { delimiters = '<>' })
   ),
-  s({ trig = 'st', snippetType = 'autosnippet' }, t '\\text{ s.t. }', { condition = in_mathzone }),
+  s({ trig = 'st', snippetType = 'autosnippet' }, t '\\text{ s.t. }', {
+    condition = conds.make_condition(function(line_to_cursor, matched_trigger, captures)
+      return in_mathzone() and is_not_preceded_by '[\\%a]'(line_to_cursor, matched_trigger, captures)
+    end),
+  }),
   s({ trig = 'sm', snippetType = 'autosnippet' }, t '\\setminus', { condition = in_mathzone }),
   s({ trig = 'tm', snippetType = 'autosnippet' }, t '\\times', { condition = in_mathzone }),
   s({ trig = 'mt', snippetType = 'autosnippet' }, t '\\mapsto', { condition = in_mathzone }),
   s({ trig = 'em', snippetType = 'autosnippet' }, t '\\emptyset', { condition = in_mathzone }),
   s({ trig = 'sum', snippetType = 'autosnippet' }, t '\\sum', { condition = in_mathzone }),
   s({ trig = 'lim', snippetType = 'autosnippet' }, t '\\lim', { condition = in_mathzone }),
-  s({ trig = 'int', snippetType = 'autosnippet' }, t '\\int', { condition = in_mathzone }),
+  s(
+    { trig = 'int', snippetType = 'autosnippet' },
+    t '\\int',
+    {
+      condition = conds.make_condition(function(line_to_cursor, matched_trigger, captures)
+        return in_mathzone() and is_not_preceded_by '[\\%a]'(line_to_cursor, matched_trigger, captures)
+      end),
+    }
+  ),
   s(
     { trig = 'Sum', snippetType = 'autosnippet' },
     fmta('\\sum_{<>}^{<>}', {
       i(1, 'i=1'),
       i(2, '\\infty'),
+    }, { delimiters = '<>' }),
+    { condition = in_mathzone }
+  ),
+  s(
+    { trig = 'lnt', snippetType = 'autosnippet' },
+    fmta('\\int_{<>}', {
+      i(1, '\\bbR^d'),
     }, { delimiters = '<>' }),
     { condition = in_mathzone }
   ),
@@ -216,13 +228,18 @@ local snippets = {
     }, { delimiters = '<>' }),
     { condition = in_mathzone }
   ),
+  s({ trig = 'tl', snippetType = 'autosnippet' }, t '\\triangleleft', { condition = in_mathzone }),
   s(
-    { trig = 'ba', snippetType = 'autosnippet' },
-    fmta('\\B_{<>,<>}(<>,<>) ', {
-      i(1, 'X'),
-      i(2, 'd|_{X}'),
-      i(3),
-      i(4),
+    { trig = 'um', snippetType = 'autosnippet' },
+    fmta('m^{*}(<>) ', {
+      i(1),
+    }, { delimiters = '<>' }),
+    { condition = in_mathzone }
+  ),
+  s(
+    { trig = 'mc', snippetType = 'autosnippet' },
+    fmta('\\mathcal{<>}', {
+      i(1),
     }, { delimiters = '<>' }),
     { condition = in_mathzone }
   ),
@@ -244,9 +261,10 @@ local snippets = {
   ),
   s(
     { trig = 'fd', snippetType = 'autosnippet' },
-    fmta('f:<> \\to <>', {
-      i(1),
+    fmta('<>:<> \\to <>', {
+      i(1, 'f'),
       i(2),
+      i(3),
     }, { delimiters = '<>' }),
     { condition = in_mathzone }
   ),
@@ -258,21 +276,28 @@ local snippets = {
     }, { delimiters = '<>' }),
     { condition = in_mathzone }
   ),
+
   s({ trig = 'cd', snippetType = 'autosnippet' }, { t '\\cdot ' }, { condition = in_mathzone }),
   s({ trig = 'le', snippetType = 'autosnippet' }, { t '\\leq ' }, { condition = in_mathzone }),
   s({ trig = 'ge', snippetType = 'autosnippet' }, { t '\\geq ' }, { condition = in_mathzone }),
 
   s(
-    { trig = 'bi', snippetType = 'autosnippet' },
-    fmta('\\bigcap_{<>} ', {
-      i(1),
+    { trig = 'ba', snippetType = 'autosnippet' },
+    fmta('\\bigcap_{<>}^{<>} ', {
+      i(1, 'n=1'),
+      i(2, '\\infty'),
     }, { delimiters = '<>' }),
-    { condition = in_mathzone }
+    {
+      condition = conds.make_condition(function(line_to_cursor, matched_trigger, captures)
+        return in_mathzone() and is_not_preceded_by '\\'(line_to_cursor, matched_trigger, captures)
+      end),
+    }
   ),
   s(
     { trig = 'bu', snippetType = 'autosnippet' },
-    fmta('\\bigcup_{<>} ', {
-      i(1),
+    fmta('\\bigcup_{<>}^{<>}', {
+      i(1, 'n=1'),
+      i(2, '\\infty'),
     }, { delimiters = '<>' }),
     { condition = in_mathzone }
   ),
@@ -298,10 +323,31 @@ local snippets = {
     trig = 'fa',
     snippetType = 'autosnippet',
   }, { t '\\forall ' }, { condition = in_mathzone }),
+
+  s({
+    trig = 'la',
+    snippetType = 'autosnippet',
+  }, { t '\\land ' }, { condition = in_mathzone }),
+
+  s({
+    trig = 'lo',
+    snippetType = 'autosnippet',
+  }, { t '\\lor ' }, { condition = in_mathzone }),
+
   s({
     trig = 'im',
     snippetType = 'autosnippet',
   }, { t '\\implies' }, { condition = in_mathzone }),
+
+  s({
+    trig = 'md',
+    snippetType = 'autosnippet',
+  }, { t '\\models' }, { condition = in_mathzone }),
+
+  s({
+    trig = 'line',
+    snippetType = 'autosnippet',
+  }, { t '\\noindent\\rule{\\textwidth}{1pt}' }, { condition = in_mathzone }),
 
   ------------------------------------
   --- Delimiters
